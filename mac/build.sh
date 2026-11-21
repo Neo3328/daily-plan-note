@@ -9,8 +9,18 @@ for arch in arm64 x86_64; do
 done
 lipo -create "$out/arm64" "$out/x86_64" -output "$app/Contents/MacOS/DailyPlanNote"
 cp mac/Info.plist "$app/Contents/Info.plist"
+cp mac/note.icns "$app/Contents/Resources/note.icns"
 codesign --force --sign - "$app"
 codesign --verify --strict "$app"
 lipo -verify_arch arm64 x86_64 "$app/Contents/MacOS/DailyPlanNote"
-hdiutil create -volname "Daily Plan Note" -srcfolder "$app" -format UDZO -ov "$out/DailyPlanNote-macOS.dmg"
+stage=$(mktemp -d)
+ditto "$app" "$stage/Daily Plan Note.app"
+ln -s /Applications "$stage/Applications"
+hdiutil create -volname "Daily Plan Note" -srcfolder "$stage" -format UDZO -ov "$out/DailyPlanNote-macOS.dmg"
 hdiutil verify "$out/DailyPlanNote-macOS.dmg"
+
+mount=$(mktemp -d)
+hdiutil attach -readonly -nobrowse -mountpoint "$mount" "$out/DailyPlanNote-macOS.dmg"
+trap 'hdiutil detach "$mount"' EXIT
+test -x "$mount/Daily Plan Note.app/Contents/MacOS/DailyPlanNote"
+test -L "$mount/Applications"
