@@ -1,10 +1,20 @@
 # 每日计划 · Daily Plan Note
 
-<a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe"><img src="assets/download-windows.png" width="232" alt="下载 Windows 版 DailyPlanNote.exe"></a>
+<a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote-Setup.exe"><img src="assets/windows-setup.png" width="185" alt="下载 Windows 安装包"></a>
+<a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe"><img src="assets/windows-portable.png" width="185" alt="下载 Windows 免安装 EXE"></a>
+<a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote-macOS.dmg"><img src="assets/macos-dmg.png" width="185" alt="下载 macOS DMG"></a>
 
-[查看发布说明](https://github.com/Neo3328/daily-plan-note/releases/latest)
+[查看发布说明和文件校验值](https://github.com/Neo3328/daily-plan-note/releases/latest)
 
-一个 Windows 桌面便签。按天记录计划，完成一项就打勾，文字会显示删除线。界面支持简体中文和 English。
+适用于 Windows 和 macOS 的桌面每日计划便签，支持按天记录、勾选完成、中英文界面和浅色／深色主题。
+
+| 平台 | 安装方法 |
+| --- | --- |
+| Windows 安装版 | 打开 `DailyPlanNote-Setup.exe`，按提示安装到当前用户目录。 |
+| Windows 免安装版 | 将 `DailyPlanNote.exe` 放在固定文件夹，双击运行。 |
+| macOS 13 或更高版本 | 打开 DMG，将 Daily Plan Note 拖到 Applications，再从“应用程序”启动。通用程序包含 Apple 芯片和 Intel 两种架构。 |
+
+macOS 版使用 SwiftUI 原生界面。应用内提供日期选择、逐日清单、置顶、主题、语言和登录时打开等选项。数据保存在当前 macOS 用户的偏好设置中。此版本采用临时签名，尚未经过 Apple 公证。Windows 版使用 Windows Forms，以下截图来自 Windows。
 
 ## 界面预览
 
@@ -21,7 +31,7 @@
   </tr>
 </table>
 
-## 使用
+## Windows 使用
 
 将下载的 `DailyPlanNote.exe` 放到准备长期使用的文件夹，双击运行。首次启动默认启用登录自启，可在便签底部关闭。
 
@@ -41,6 +51,8 @@ build.cmd
 ```
 
 生成的程序位于 `bin\DailyPlanNote.exe`。源码使用 C# 和 Windows Forms。构建脚本调用系统的 .NET Framework C# 编译器，无需安装 NuGet 包。
+
+在 macOS 上安装 Xcode 后，运行 `bash mac/build.sh`，生成的通用安装镜像位于 `bin/mac/DailyPlanNote-macOS.dmg`。Windows 安装包可在运行 `build.cmd` 后，用 Inno Setup 6 编译 `installer/windows.iss` 生成。
 
 ## 许可与致谢
 
