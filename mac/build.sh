@@ -12,7 +12,7 @@ cp mac/Info.plist "$app/Contents/Info.plist"
 cp mac/note.icns "$app/Contents/Resources/note.icns"
 codesign --force --sign - "$app"
 codesign --verify --strict "$app"
-lipo -verify_arch arm64 x86_64 "$app/Contents/MacOS/DailyPlanNote"
+lipo "$app/Contents/MacOS/DailyPlanNote" -verify_arch arm64 x86_64
 stage=$(mktemp -d)
 ditto "$app" "$stage/Daily Plan Note.app"
 ln -s /Applications "$stage/Applications"
@@ -24,3 +24,4 @@ hdiutil attach -readonly -nobrowse -mountpoint "$mount" "$out/DailyPlanNote-macO
 trap 'hdiutil detach "$mount"' EXIT
 test -x "$mount/Daily Plan Note.app/Contents/MacOS/DailyPlanNote"
 test -L "$mount/Applications"
+
