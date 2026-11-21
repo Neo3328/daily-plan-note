@@ -1,10 +1,22 @@
 # 每日计划 · Daily Plan Note
 
+**[下载 Windows 版（DailyPlanNote.exe）](https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe)** · [查看发布说明](https://github.com/Neo3328/daily-plan-note/releases/latest)
+
 一个 Windows 桌面便签。按天记录计划，完成一项就打勾，文字会显示删除线。界面支持简体中文和 English。
+
+## 界面预览
+
+| 浅色便签 | 深色便签 |
+| :---: | :---: |
+| ![浅色中文便签，四条示例计划中已完成一条](docs/screenshots/light.png) | ![深色英文便签，完成的计划显示删除线](docs/screenshots/dark.png) |
+
+| 中文日历 | English calendar |
+| :---: | :---: |
+| ![浅色中文日历，星期从周一排到周日](docs/screenshots/calendar-zh.png) | ![深色英文日历，显示英文月份、星期和 Today 按钮](docs/screenshots/calendar-en.png) |
 
 ## 使用
 
-从 [Releases](https://github.com/Neo3328/daily-plan-note/releases) 下载 `DailyPlanNote.exe`。把它放到准备长期使用的文件夹，双击运行。首次启动默认启用登录自启，可在便签底部关闭。
+将下载的 `DailyPlanNote.exe` 放到准备长期使用的文件夹，双击运行。首次启动默认启用登录自启，可在便签底部关闭。
 
 - 直接输入计划，按 Enter 新建一条。日期栏可切换到其他日期，「今天」可返回当天。
 - 拖动标题区移动便签，拖右下角调整大小。应用会记住窗口布局。
