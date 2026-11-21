@@ -1,18 +1,25 @@
 # 每日计划 · Daily Plan Note
 
-**[下载 Windows 版（DailyPlanNote.exe）](https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe)** · [查看发布说明](https://github.com/Neo3328/daily-plan-note/releases/latest)
+<a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe"><img src="assets/download-windows.png" width="232" alt="下载 Windows 版 DailyPlanNote.exe"></a>
+
+[查看发布说明](https://github.com/Neo3328/daily-plan-note/releases/latest)
 
 一个 Windows 桌面便签。按天记录计划，完成一项就打勾，文字会显示删除线。界面支持简体中文和 English。
 
 ## 界面预览
 
-| 浅色便签 | 深色便签 |
-| :---: | :---: |
-| ![浅色中文便签，四条示例计划中已完成一条](docs/screenshots/light.png) | ![深色英文便签，完成的计划显示删除线](docs/screenshots/dark.png) |
-
-| 中文日历 | English calendar |
-| :---: | :---: |
-| ![浅色中文日历，星期从周一排到周日](docs/screenshots/calendar-zh.png) | ![深色英文日历，显示英文月份、星期和 Today 按钮](docs/screenshots/calendar-en.png) |
+<table>
+  <tr><th>浅色便签</th><th>深色便签</th></tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/light.png" width="320" alt="浅色中文便签"></td>
+    <td align="center"><img src="docs/screenshots/dark.png" width="320" alt="深色英文便签"></td>
+  </tr>
+  <tr><th>中文日历</th><th>English calendar</th></tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/calendar-zh.png" width="320" alt="浅色中文日历"></td>
+    <td align="center"><img src="docs/screenshots/calendar-en.png" width="320" alt="深色英文日历"></td>
+  </tr>
+</table>
 
 ## 使用
 
