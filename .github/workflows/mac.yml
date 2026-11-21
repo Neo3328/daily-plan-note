@@ -1,0 +1,19 @@
+name: Build macOS
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash mac/build.sh
+      - name: Check application launch
+        run: |
+          open "bin/mac/Daily Plan Note.app"
+          sleep 4
+          pgrep -x DailyPlanNote
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macOS-universal
+          path: bin/mac/DailyPlanNote-macOS.dmg
