@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Drawing2D;
@@ -356,7 +356,7 @@ class Plan : Form {
             if(!MotionSettings.Enabled) {
                 Ani.Stop("progress");
                 UpdateProgress();
-                foreach(Panel row in editor.Controls) ((WidgetCheck)row.Controls[0]).FinishAnimation();
+                foreach(Panel row in editor.Rows) ((WidgetCheck)row.Controls[0]).FinishAnimation();
                 themeMenu.FinishAnimation();
                 scroll.FinishAnimation();
             }

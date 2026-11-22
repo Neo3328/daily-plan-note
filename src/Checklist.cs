@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -6,48 +6,50 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-class Checklist : FlowLayoutPanel {
+class Checklist : Panel {
     public event EventHandler Changed;
     public event EventHandler ScrollChanged;
-    // 不用原生滚动条：AutoScroll 关掉，自行堆叠行并维护 offset，
-    // 右侧交给自绘的 NoteScrollBar。这样滚动位置不会被 WinForms 的滚动条逻辑重置。
-    int offset;
-    // 负 Padding 在 FlowLayoutPanel 里会被吃掉，直接在布局后把每行往上摞
-    void ApplyOffset() { PerformLayout(); }
+    readonly FlowLayoutPanel content = new FlowLayoutPanel { FlowDirection=FlowDirection.TopDown, WrapContents=false, Margin=Padding.Empty };
+    public ControlCollection Rows { get { return content.Controls; } }
+    int offset, destination;
+    void ApplyOffset() { content.Top=-offset; }
     void RaiseScroll() { if(ScrollChanged!=null) ScrollChanged(this,EventArgs.Empty); }
-    public int ScrollTotal {
-        get { int sum=0; foreach(Panel row in Controls) sum+=row.Height; return sum; }
-    }
+    public int ScrollTotal { get { return content.Height; } }
     public int ScrollVisible { get { return ClientSize.Height; } }
     public int ScrollPos { get { return offset; } }
     public void ScrollTo(int target,bool animate) {
         int max=Math.Max(0,ScrollTotal-ScrollVisible);
         target=Math.Max(0,Math.Min(max,target));
+        destination=target;
         if(!animate || !Ani.Enabled || !IsHandleCreated) {
             Ani.Stop("listScroll");
             offset=target; ApplyOffset(); RaiseScroll(); return;
         }
-        if(offset==target) return;
+        if(offset==target) { Ani.Stop("listScroll"); return; }
         Ani.Start("listScroll",
             Ani.Value(delegate{ return offset; },delegate(double v){ offset=(int)Math.Round(v); ApplyOffset(); RaiseScroll(); },
                 target,160,0,new EaseOutFluent(3)));
     }
     // 光标跑到看不见的行时把它带进视野
     void EnsureVisible(Panel row) {
-        int top=row.Top+offset;
+        int top=row.Top;
         if(top<offset) ScrollTo(top,true);
         else if(top+row.Height>offset+ScrollVisible) ScrollTo(top+row.Height-ScrollVisible,true);
     }
-    protected override void OnLayout(LayoutEventArgs e) {
-        base.OnLayout(e);
-        int max=Math.Max(0,ScrollTotal-ScrollVisible);
-        if(offset>max) offset=max;          // 删行后内容变短，别让视图停在空处
-        int y=-offset;
-        foreach(Panel row in Controls) { row.Top=y; y+=row.Height; }
-        RaiseScroll();
+    void FitContent() {
+        int height=0;
+        foreach(Panel row in Rows) height+=row.Height;
+        if(content.Height!=height) content.Height=height;
+        int max=Math.Max(0,height-ScrollVisible);
+        if(offset>max || destination>max) ScrollTo(Math.Min(offset,max),false);
+        else RaiseScroll();
+    }
+    public void ScrollWheel(int delta) {
+        int start=Ani.Running("listScroll")?destination:offset;
+        ScrollTo(start-(int)Math.Round(delta*Ui.D(60)/120.0),true);
     }
     void WheelScroll(MouseEventArgs e) {
-        ScrollTo(offset-Math.Sign(e.Delta)*Ui.D(60),true);
+        ScrollWheel(e.Delta);
         HandledMouseEventArgs handled=e as HandledMouseEventArgs;
         if(handled!=null) handled.Handled=true;
     }
@@ -66,7 +68,7 @@ class Checklist : FlowLayoutPanel {
     public void ApplyColors(Color paper,Color ink,Color muted) {
         dark=paper.GetBrightness()<0.45f;
         BackColor=paper;
-        foreach(Panel row in Controls) {
+        foreach(Panel row in Rows) {
             CheckBox box=(CheckBox)row.Controls[0];
             TextBox input=Input(row);
             input.BackColor=paper;
@@ -76,11 +78,12 @@ class Checklist : FlowLayoutPanel {
     bool rebuilding;
     public Checklist() {
         SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.AllPaintingInWmPaint,true);
-        FlowDirection = FlowDirection.TopDown;
-        WrapContents = false;
+        content.SetBounds(0,0,ClientSize.Width,0);
+        Controls.Add(content);
+        content.Layout+=delegate { if(!rebuilding) FitContent(); };
         AutoScroll = false;
-        Resize += delegate { foreach (Panel row in Controls) Fit(row); ScrollTo(offset,false); };
-        MouseDown += delegate { if (Controls.Count > 0) Input(Controls[Controls.Count-1]).Focus(); };
+        Resize += delegate { content.SuspendLayout(); content.Width=ClientSize.Width; foreach (Panel row in Rows) Fit(row); content.ResumeLayout(true); ScrollTo(offset,false); };
+        MouseDown += delegate { if (Rows.Count > 0) Input(Rows[Rows.Count-1]).Focus(); };
     }
     static TextBox Input(Control row) { return (TextBox)row.Controls[1]; }
     void Fit(Panel row) {
@@ -111,7 +114,7 @@ class Checklist : FlowLayoutPanel {
         input.MouseWheel += delegate(object sender,MouseEventArgs e) { WheelScroll(e); };
         box.MouseWheel += delegate(object sender,MouseEventArgs e) { WheelScroll(e); };
         input.Enter += delegate { EnsureVisible(row); };
-        Controls.Add(row); Controls.SetChildIndex(row,index); Fit(row);
+        Rows.Add(row); Rows.SetChildIndex(row,index); Fit(row);
         GrowRow(row);
         box.Enabled=!String.IsNullOrWhiteSpace(text);
         box.CheckedChanged += delegate {
@@ -127,63 +130,63 @@ class Checklist : FlowLayoutPanel {
             if(rebuilding) return;
             string[] lines=input.Text.Replace("\r\n","\n").Replace('\r','\n').Split('\n');
             if(lines.Length>1) {
-                int next=Controls.GetChildIndex(row)+1;
+                int next=Rows.GetChildIndex(row)+1;
                 rebuilding=true;
                 try { input.Text=lines[0]; foreach(string line in lines.Skip(1)) AddRow(line,false,next++); }
                 finally { rebuilding=false; }
-                TextBox last=Input(Controls[next-1]); last.Focus(); last.Select(last.TextLength,0);
+                TextBox last=Input(Rows[next-1]); last.Focus(); last.Select(last.TextLength,0);
             }
             box.Enabled=!String.IsNullOrWhiteSpace(input.Text);
             if(!box.Enabled) box.Checked=false;
             Fit(row); EnsureVisible(row); Notify();
         };
         input.KeyDown += delegate(object sender,KeyEventArgs e) {
-            int pos=Controls.GetChildIndex(row);
+            int pos=Rows.GetChildIndex(row);
             if(e.KeyCode==Keys.Enter) {
                 e.SuppressKeyPress=true;
                 int split=input.SelectionStart;
                 string tail=input.Text.Substring(split+input.SelectionLength);
                 input.Text=input.Text.Substring(0,split);
                 Input(AddRow(tail,false,pos+1)).Focus(); Notify();
-            } else if(e.KeyCode==Keys.Back && input.TextLength==0 && Controls.Count>1) {
+            } else if(e.KeyCode==Keys.Back && input.TextLength==0 && Rows.Count>1) {
                 e.SuppressKeyPress=true;
-                row.Dispose(); TextBox previous=Input(Controls[Math.Max(0,pos-1)]);
+                row.Dispose(); TextBox previous=Input(Rows[Math.Max(0,pos-1)]);
                 previous.Focus(); previous.Select(previous.TextLength,0); Notify();
             }
         };
         return row;
     }
     public void ReadDay(string path) {
-        rebuilding=true; SuspendLayout();
+        Ani.Stop("listScroll"); rebuilding=true; content.SuspendLayout();
         try {
-            while(Controls.Count>0) Controls[0].Dispose();
+            while(Rows.Count>0) Rows[0].Dispose();
             if(File.Exists(path+".items")) {
                 foreach(string line in File.ReadAllLines(path+".items")) {
                     if(line.Length==0 || (line[0]!='0' && line[0]!='1')) throw new IOException("无效计划文件");
-                    try { AddRow(Encoding.UTF8.GetString(Convert.FromBase64String(line.Substring(1))),line[0]=='1',Controls.Count); }
+                    try { AddRow(Encoding.UTF8.GetString(Convert.FromBase64String(line.Substring(1))),line[0]=='1',Rows.Count); }
                     catch(FormatException ex) { throw new IOException("无效计划文件",ex); }
                 }
             } else if(File.Exists(path)) {
-                foreach(string line in File.ReadAllText(path).Replace("\r\n","\n").Replace('\r','\n').Split('\n')) AddRow(line,false,Controls.Count);
+                foreach(string line in File.ReadAllText(path).Replace("\r\n","\n").Replace('\r','\n').Split('\n')) AddRow(line,false,Rows.Count);
             }
-            if(Controls.Count==0) AddRow("",false,0);
-        } finally { ResumeLayout(); rebuilding=false; offset=0; ApplyOffset(); RaiseScroll(); }
+            if(Rows.Count==0) AddRow("",false,0);
+        } finally { rebuilding=false; offset=destination=0; content.ResumeLayout(true); FitContent(); ApplyOffset(); }
     }
     public void CountPlans(out int complete,out int total) {
         complete=0; total=0;
-        foreach(Panel row in Controls) {
+        foreach(Panel row in Rows) {
             if(String.IsNullOrWhiteSpace(Input(row).Text)) continue;
             total++;
             if(((CheckBox)row.Controls[0]).Checked) complete++;
         }
     }
     public string[] SerializeRows() {
-        return Controls.Cast<Panel>().Select(row=>(((CheckBox)row.Controls[0]).Checked?"1":"0")+Convert.ToBase64String(Encoding.UTF8.GetBytes(Input(row).Text))).ToArray();
+        return Rows.Cast<Panel>().Select(row=>(((CheckBox)row.Controls[0]).Checked?"1":"0")+Convert.ToBase64String(Encoding.UTF8.GetBytes(Input(row).Text))).ToArray();
     }
-    public void RefreshLanguage(){foreach(Panel row in Controls){row.Controls[0].AccessibleName=Lang.T("标记完成");Input(row).AccessibleName=Lang.T("计划内容");}}
+    public void RefreshLanguage(){foreach(Panel row in Rows){row.Controls[0].AccessibleName=Lang.T("标记完成");Input(row).AccessibleName=Lang.T("计划内容");}}
     public void SelectFirstEditor() {
-        if(Controls.Count==0 || !Enabled) return;
-        TextBox input=Input(Controls[0]);
+        if(Rows.Count==0 || !Enabled) return;
+        TextBox input=Input(Rows[0]);
         input.Select(input.TextLength,0);
         input.Select();
     }

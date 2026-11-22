@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -19,7 +19,7 @@ sealed class NoteScrollBar : Control {
         SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         Cursor = Cursors.Hand;
         TabStop = false;
-        owner.ScrollChanged += delegate { Sync(true); };
+        owner.ScrollChanged += delegate { Sync(false); };
         owner.Disposed += delegate { Ani.Stop("sbPres" + id); Ani.Stop("sbGlow" + id); Ani.Stop("sbMove" + id); };
     }
 
@@ -93,7 +93,7 @@ sealed class NoteScrollBar : Control {
     }
     protected override void OnMouseWheel(MouseEventArgs e) {
         base.OnMouseWheel(e);
-        ScrollTo(owner.ScrollPos - Math.Sign(e.Delta) * Ui.D(48));
+        owner.ScrollWheel(e.Delta);
     }
     void ScrollTo(double pos) {
         int max = Max;

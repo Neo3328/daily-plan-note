@@ -1,5 +1,5 @@
 ﻿#define MyAppName "每日计划"
-#define MyAppVersion "1.1.1"
+#define MyAppVersion "1.1.2"
 #define MyAppExeName "DailyPlanNote.exe"
 #define OutputRoot "..\bin"
 
@@ -24,7 +24,7 @@ CloseApplications=yes
 RestartApplications=no
 CloseApplicationsFilter={#MyAppExeName}
 AppMutex=Local\DailyPlanNote_74b3
-VersionInfoVersion=1.1.1.0
+VersionInfoVersion=1.1.2.0
 VersionInfoDescription=每日计划 安装程序
 VersionInfoProductName=每日计划
 
