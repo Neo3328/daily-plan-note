@@ -6,13 +6,15 @@
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe"><img src="assets/windows-portable.png" width="185" alt="下载 Windows 免安装 EXE"></a>
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote-macOS.dmg"><img src="assets/macos-dmg.png" width="185" alt="下载 macOS DMG"></a>
 
+**运行 Setup 就能覆盖升级，无需先卸载，同一 Windows 账户下的计划、勾选状态和设置都会保留。**
+
 [查看发布说明和文件校验值](https://github.com/Neo3328/daily-plan-note/releases/latest)
 
 适用于 Windows 和 macOS 的桌面每日计划便签，支持按天记录、勾选完成、中英文界面和浅色／深色主题。
 
 | 平台 | 安装方法 |
 | --- | --- |
-| Windows 安装版 | 下载并运行 `DailyPlanNote-Setup.exe`。首次使用时按提示安装。升级时直接覆盖现有版本，**无需先卸载**。同一 Windows 账户下已有的计划、勾选状态和设置都会保留。如果提示关闭正在运行的便签，选择允许并继续安装。 |
+| Windows 安装版 | 下载并运行 `DailyPlanNote-Setup.exe`。按提示完成安装。如果提示关闭正在运行的便签，选择允许并继续安装。 |
 | Windows 免安装版 | 将 `DailyPlanNote.exe` 放在固定文件夹，双击运行。 |
 | macOS 13 或更高版本 | 打开 DMG，将 Daily Plan Note 拖到 Applications，再从“应用程序”启动。通用程序包含 Apple 芯片和 Intel 两种架构。 |
 

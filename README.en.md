@@ -6,13 +6,15 @@
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe"><img src="assets/windows-portable-en.png" width="185" alt="Download the portable Windows app"></a>
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote-macOS.dmg"><img src="assets/macos-dmg-en.png" width="185" alt="Download the universal macOS disk image"></a>
 
+**Run Setup to upgrade in place without uninstalling first. Your plans, checkmarks, and settings are preserved under the same Windows account.**
+
 [Release notes and SHA-256 checksums](https://github.com/Neo3328/daily-plan-note/releases/latest)
 
 Keep a daily checklist on your Windows or Mac desktop. Pick a date to see its plans, check off finished tasks, and switch between English and Simplified Chinese or light and dark themes.
 
 | Platform | Installation |
 | --- | --- |
-| Windows installer | Download and run `DailyPlanNote-Setup.exe` for a first install or an in-place upgrade. **You can upgrade without uninstalling first.** Setup preserves your existing plans, checkmarks, and settings for the same Windows account. If prompted, allow Setup to close the running app and continue. |
+| Windows installer | Download and run `DailyPlanNote-Setup.exe`, then follow the installation prompts. If prompted, allow Setup to close the running app and continue. |
 | Windows portable | Save `DailyPlanNote.exe` in a permanent folder and double-click it. |
 | macOS 13 or later | Open the DMG, drag Daily Plan Note into Applications, then open it from there. The universal app supports Apple silicon and Intel Macs. |
 
