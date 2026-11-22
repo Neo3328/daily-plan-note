@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Drawing2D;
@@ -57,6 +57,10 @@ class Plan : Form {
         catch (DllNotFoundException) { }
           catch (EntryPointNotFoundException) { }
         try { SetProcessDPIAware(); } catch (DllNotFoundException) { } catch (EntryPointNotFoundException) { }
+    }
+    // Composite the header, editor and footer into one frame when the window appears.
+    protected override CreateParams CreateParams {
+        get { CreateParams cp=base.CreateParams; cp.ExStyle|=0x02000000; return cp; }
     }
     bool cornerRoundedBySystem;
     protected override void OnHandleCreated(EventArgs e) {
@@ -154,14 +158,14 @@ class Plan : Form {
     void RestoreFromTray() {
         if(!uiReady) return;
         tray.Visible=false;
-        ShowInTaskbar=true;
+
         if(WindowState==FormWindowState.Minimized) WindowState=FormWindowState.Normal;
         if(!Visible) Show();
         Activate();
     }
     void HideToTray() {
         if(!Save()) { MessageBox.Show(Lang.T("保存失败，请检查磁盘空间或文件夹权限后重试。")); return; }
-        ShowInTaskbar=false;
+
         Hide();
         tray.Visible=true;
         if(!trayHintShown) {
@@ -396,7 +400,7 @@ class Plan : Form {
             if(!Save()) { e.Cancel=true; MessageBox.Show(Lang.T("保存失败，请检查磁盘空间或文件夹权限后重试。")); }
         };
         ScaleLayout(title);
-        LoadDay(day); uiReady=true; Shown += delegate { editor.FocusFirst(); };
+        LoadDay(day); editor.SelectFirstEditor(); uiReady=true;
     }
     static float DetectScale() {
         try {
@@ -467,6 +471,7 @@ class Plan : Form {
         }
     }
 }
+
 
 
 

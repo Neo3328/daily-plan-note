@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -74,11 +74,6 @@ class Checklist : FlowLayoutPanel {
         }
     }
     bool rebuilding;
-    // 滚动时逐帧挪动子控件，父窗口擦除跟不上就会留残影；
-    // WS_EX_COMPOSITED 让整棵子树先画到离屏缓冲再一次性贴上，残影和闪烁一起消掉。
-    protected override CreateParams CreateParams {
-        get { CreateParams cp=base.CreateParams; cp.ExStyle|=0x02000000; return cp; }
-    }
     public Checklist() {
         SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.AllPaintingInWmPaint,true);
         FlowDirection = FlowDirection.TopDown;
@@ -186,9 +181,15 @@ class Checklist : FlowLayoutPanel {
         return Controls.Cast<Panel>().Select(row=>(((CheckBox)row.Controls[0]).Checked?"1":"0")+Convert.ToBase64String(Encoding.UTF8.GetBytes(Input(row).Text))).ToArray();
     }
     public void RefreshLanguage(){foreach(Panel row in Controls){row.Controls[0].AccessibleName=Lang.T("标记完成");Input(row).AccessibleName=Lang.T("计划内容");}}
-    public void FocusFirst() { if(Controls.Count>0) Input(Controls[0]).Focus(); }
+    public void SelectFirstEditor() {
+        if(Controls.Count==0 || !Enabled) return;
+        TextBox input=Input(Controls[0]);
+        input.Select(input.TextLength,0);
+        input.Select();
+    }
     protected override void Dispose(bool disposing) { base.Dispose(disposing); if(disposing){ Ani.Stop("listScroll"); normal.Dispose(); done.Dispose(); } }
 }
+
 
 
 
