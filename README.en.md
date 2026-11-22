@@ -1,6 +1,6 @@
 # Daily Plan Note · 每日计划
 
-[简体中文](README.md) · **English**
+[简体中文](README.md) · **English** · [![License: MIT](assets/license-mit.svg)](LICENSE)
 
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote-Setup.exe"><img src="assets/windows-setup-en.png" width="185" alt="Download the Windows installer"></a>
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe"><img src="assets/windows-portable-en.png" width="185" alt="Download the portable Windows app"></a>
