@@ -12,7 +12,7 @@ Keep a daily checklist on your Windows or Mac desktop. Pick a date to see its pl
 
 | Platform | Installation |
 | --- | --- |
-| Windows installer | Run `DailyPlanNote-Setup.exe` and follow the prompts to install for your user account. |
+| Windows installer | Download and run `DailyPlanNote-Setup.exe` for a first install or an in-place upgrade. **You can upgrade without uninstalling first.** Setup preserves your existing plans, checkmarks, and settings for the same Windows account. If prompted, allow Setup to close the running app and continue. |
 | Windows portable | Save `DailyPlanNote.exe` in a permanent folder and double-click it. |
 | macOS 13 or later | Open the DMG, drag Daily Plan Note into Applications, then open it from there. The universal app supports Apple silicon and Intel Macs. |
 

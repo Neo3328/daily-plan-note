@@ -12,7 +12,7 @@
 
 | 平台 | 安装方法 |
 | --- | --- |
-| Windows 安装版 | 打开 `DailyPlanNote-Setup.exe`，按提示安装到当前用户目录。 |
+| Windows 安装版 | 下载并运行 `DailyPlanNote-Setup.exe`。首次使用时按提示安装。升级时直接覆盖现有版本，**无需先卸载**。同一 Windows 账户下已有的计划、勾选状态和设置都会保留。如果提示关闭正在运行的便签，选择允许并继续安装。 |
 | Windows 免安装版 | 将 `DailyPlanNote.exe` 放在固定文件夹，双击运行。 |
 | macOS 13 或更高版本 | 打开 DMG，将 Daily Plan Note 拖到 Applications，再从“应用程序”启动。通用程序包含 Apple 芯片和 Intel 两种架构。 |
 
