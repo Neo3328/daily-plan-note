@@ -1,5 +1,5 @@
 ﻿#define MyAppName "每日计划"
-#define MyAppVersion "1.1.2"
+#define MyAppVersion "1.1.3"
 #define MyAppExeName "DailyPlanNote.exe"
 #define OutputRoot "..\bin"
 
@@ -20,11 +20,11 @@ SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=lowest
 MinVersion=10.0
+; Restart Manager can close a running copy after the user confirms the upgrade.
 CloseApplications=yes
 RestartApplications=no
 CloseApplicationsFilter={#MyAppExeName}
-AppMutex=Local\DailyPlanNote_74b3
-VersionInfoVersion=1.1.2.0
+VersionInfoVersion=1.1.3.0
 VersionInfoDescription=每日计划 安装程序
 VersionInfoProductName=每日计划
 

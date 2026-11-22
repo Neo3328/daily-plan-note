@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -52,16 +52,13 @@ sealed class WidgetCheck : CheckBox {
             Ani.Start("wcTrack" + id,
                 Ani.Color(delegate { return track; }, delegate(Color c) { track = c; Invalidate(); }, TrackColor(Checked), 150));
         } else {
-            const int T = 150;
-            Ani.Start("wcRing" + id,
-                Ani.Delta(delegate(double d) { ring += d; Invalidate(); }, 12 - ring, T, 0, new EaseOutFluent()),
-                Ani.Delta(delegate(double d) { ring += d; Invalidate(); }, 6, T * 2, (int)(T * 0.7), new EaseOutBack()));
-            if (Checked)
-                Ani.Start("wcMark" + id, Ani.Delta(delegate(double d) { mark += d; Invalidate(); }, 1 - mark, T * 2, (int)(T * 0.7), new EaseOutBack(2)));
-            else
-                Ani.Start("wcMark" + id, Ani.Delta(delegate(double d) { mark += d; Invalidate(); }, -mark, (int)(T * 0.9), 0, new EaseInFluent(2)));
-            Ani.Start("wcLine" + id, Ani.Color(delegate { return line; }, delegate(Color c) { line = c; Invalidate(); }, Checked || hover ? Accent() : NeutralLine(), T));
-        }
+            // Retarget from the current drawing, including when the user reverses mid-frame.
+            Ani.Start("wcRing" + id, Ani.Value(delegate { return ring; },
+                delegate(double v) { ring=v; Invalidate(); },18,140));
+            Ani.Start("wcMark" + id, Ani.Value(delegate { return mark; },
+                delegate(double v) { mark=v; Invalidate(); },Checked?1:0,150));
+            Ani.Start("wcLine" + id, Ani.Color(delegate { return line; },
+                delegate(Color c) { line=c; Invalidate(); }, Checked || hover ? Accent() : NeutralLine(),130));        }
         Invalidate();
         base.OnCheckedChanged(e);
     }
@@ -99,7 +96,7 @@ sealed class WidgetCheck : CheckBox {
         pressed = true;
         if (!toggle) {
             Ani.Start("wcRing" + id, Ani.Delta(delegate(double d) { ring += d; Invalidate(); }, 16.5 - ring, 1000, 0, new EaseOutFluent(4)));
-            if (Checked) Ani.Start("wcMark" + id, Ani.Delta(delegate(double d) { mark += d; Invalidate(); }, 0.9 - mark, 1000, 0, new EaseOutFluent(4)));
+
         }
     }
     protected override void OnMouseUp(MouseEventArgs e) {
@@ -110,8 +107,8 @@ sealed class WidgetCheck : CheckBox {
     }
     void Release() {
         if (toggle) return;
-        Ani.Start("wcRing" + id, Ani.Delta(delegate(double d) { ring += d; Invalidate(); }, 18 - ring, 400, 0, new EaseOutFluent(4)));
-        if (Checked) Ani.Start("wcMark" + id, Ani.Delta(delegate(double d) { mark += d; Invalidate(); }, 1 - mark, 500, 0, new EaseOutFluent(4)));
+        Ani.Start("wcRing" + id, Ani.Delta(delegate(double d) { ring += d; Invalidate(); }, 18 - ring, 140, 0, new EaseOutFluent(4)));
+
     }
 
     protected override void OnPaint(PaintEventArgs e) {
@@ -263,4 +260,3 @@ sealed class PillButton : Button {
         }
     }
 }
-

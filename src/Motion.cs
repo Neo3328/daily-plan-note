@@ -1,4 +1,4 @@
-// 动画底层：缓动函数 + 动画引擎。
+﻿// 动画底层：缓动函数 + 动画引擎。
 // 公式与交互时序取自 PCL（Plain Craft Launcher 2，作者：龙腾猫跃），
 // 这里只搬“怎么动”，配色仍用便签自己的暖色系。
 using System;
@@ -58,7 +58,7 @@ static class Ani {
         public Action Done;
     }
     class Group {
-        public List<Item> Items = new List<Item>();
+        public Item[] Items;
         public long Start = Stopwatch.GetTimestamp();
     }
     static readonly Dictionary<string, Group> groups = new Dictionary<string, Group>();
@@ -66,9 +66,9 @@ static class Ani {
     static readonly double TicksPerMs = Stopwatch.Frequency / 1000.0;
 
     public static void Start(string name, params Item[] items) {
-        Stop(name);
-        if (items == null || items.Length == 0) return;
+        if (items == null || items.Length == 0) { Stop(name); return; }
         if (!Enabled) {
+            Stop(name);
             foreach (Item it in items) {
                 if (it.IsCode) { if (it.Done != null) it.Done(); continue; }
                 if (it.IsDelta) it.Add(it.Total); else it.Set(it.To);
@@ -76,8 +76,8 @@ static class Ani {
             }
             return;
         }
-        Group g = new Group();
-        g.Items.AddRange(items);
+        Group g = new Group { Items = items };
+
         groups[name] = g;
         if (timer == null) {
             timer = new Timer();
@@ -105,7 +105,7 @@ static class Ani {
             if (!groups.TryGetValue(name, out g)) continue;
             double ms = (now - g.Start) / TicksPerMs;
             bool all = true;
-            foreach (Item it in g.Items.ToArray()) {
+            foreach (Item it in g.Items) {
                 double local = ms - it.Delay;
                 if (local < 0) { all = false; continue; }
                 if (it.IsCode) { if (it.Done != null) { it.Done(); it.Done = null; } continue; }

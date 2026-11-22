@@ -12,7 +12,51 @@ class Checklist : Panel {
     readonly FlowLayoutPanel content = new FlowLayoutPanel { FlowDirection=FlowDirection.TopDown, WrapContents=false, Margin=Padding.Empty };
     public ControlCollection Rows { get { return content.Controls; } }
     int offset, destination;
-    void ApplyOffset() { content.Top=-offset; }
+    double wheelRemainder;
+    System.Threading.Timer scrollFrames;
+    int frameQueued;
+    bool higherTimerResolution;
+    [DllImport("winmm.dll")] static extern uint timeBeginPeriod(uint period);
+    [DllImport("winmm.dll")] static extern uint timeEndPeriod(uint period);
+    void QueueScrollFrame(object state) {
+        if(System.Threading.Interlocked.Exchange(ref frameQueued,1)!=0) return;
+        try {
+            BeginInvoke((MethodInvoker)delegate {
+                try { if(scrollFrames!=null) AdvanceScroll(); }
+                finally { System.Threading.Interlocked.Exchange(ref frameQueued,0); }
+            });
+        } catch(InvalidOperationException) { System.Threading.Interlocked.Exchange(ref frameQueued,0); }
+    }
+    void StopScroll() {
+        if(scrollFrames!=null) scrollFrames.Dispose();
+        scrollFrames=null;
+        if(higherTimerResolution) { timeEndPeriod(1); higherTimerResolution=false; }
+        frameClock.Stop();
+    }
+    protected override void OnHandleDestroyed(EventArgs e) {
+        StopScroll();
+        System.Threading.Interlocked.Exchange(ref frameQueued,0);
+        base.OnHandleDestroyed(e);
+    }
+    readonly System.Diagnostics.Stopwatch frameClock=new System.Diagnostics.Stopwatch();
+    double preciseOffset;
+    void ApplyOffset() {
+        if(content.Top==-offset) return;
+        // Moving the viewport does not change any child sizes or anchors.
+        SuspendLayout();
+        try { content.Top=-offset; } finally { ResumeLayout(false); }
+    }
+    void AdvanceScroll() {
+        double elapsed=frameClock.Elapsed.TotalMilliseconds;
+        frameClock.Restart();
+        preciseOffset=destination+(preciseOffset-destination)*Math.Exp(-elapsed/30.0);
+        int next=(int)Math.Round(preciseOffset);
+        if(next==destination || !Ani.Enabled) {
+            StopScroll(); next=destination; preciseOffset=next;
+        }
+        if(next==offset) return;
+        offset=next; ApplyOffset(); RaiseScroll();
+    }
     void RaiseScroll() { if(ScrollChanged!=null) ScrollChanged(this,EventArgs.Empty); }
     public int ScrollTotal { get { return content.Height; } }
     public int ScrollVisible { get { return ClientSize.Height; } }
@@ -22,13 +66,15 @@ class Checklist : Panel {
         target=Math.Max(0,Math.Min(max,target));
         destination=target;
         if(!animate || !Ani.Enabled || !IsHandleCreated) {
-            Ani.Stop("listScroll");
-            offset=target; ApplyOffset(); RaiseScroll(); return;
+            StopScroll(); preciseOffset=offset=target;
+            ApplyOffset(); RaiseScroll(); return;
         }
-        if(offset==target) { Ani.Stop("listScroll"); return; }
-        Ani.Start("listScroll",
-            Ani.Value(delegate{ return offset; },delegate(double v){ offset=(int)Math.Round(v); ApplyOffset(); RaiseScroll(); },
-                target,160,0,new EaseOutFluent(3)));
+        if(target==offset){
+            StopScroll(); preciseOffset=offset; return;
+        }
+        if(scrollFrames==null){
+            preciseOffset=offset; higherTimerResolution=timeBeginPeriod(1)==0; frameClock.Restart(); scrollFrames=new System.Threading.Timer(QueueScrollFrame,null,0,15);
+        }
     }
     // 光标跑到看不见的行时把它带进视野
     void EnsureVisible(Panel row) {
@@ -45,8 +91,15 @@ class Checklist : Panel {
         else RaiseScroll();
     }
     public void ScrollWheel(int delta) {
-        int start=Ani.Running("listScroll")?destination:offset;
-        ScrollTo(start-(int)Math.Round(delta*Ui.D(60)/120.0),true);
+        if(delta==0) return;
+        if(wheelRemainder*delta>0) wheelRemainder=0;
+        double distance=wheelRemainder-delta*Ui.D(60)/120.0;
+        int pixels=(int)distance;
+        wheelRemainder=distance-pixels;
+        if(pixels==0) return;
+        bool continuing=scrollFrames!=null && Math.Sign(destination-offset)==Math.Sign(pixels);
+        int start=continuing?destination:offset;
+        ScrollTo(start+pixels,true);
     }
     void WheelScroll(MouseEventArgs e) {
         ScrollWheel(e.Delta);
@@ -77,6 +130,7 @@ class Checklist : Panel {
     }
     bool rebuilding;
     public Checklist() {
+
         SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.AllPaintingInWmPaint,true);
         content.SetBounds(0,0,ClientSize.Width,0);
         Controls.Add(content);
@@ -119,12 +173,8 @@ class Checklist : Panel {
         box.Enabled=!String.IsNullOrWhiteSpace(text);
         box.CheckedChanged += delegate {
             input.Font=box.Checked?done:normal;
-            Color to=box.Checked?NoteTheme.Muted(dark):NoteTheme.Ink(dark);
-            if(Ani.Enabled && IsHandleCreated)
-                Ani.Start("rowInk"+row.GetHashCode(),
-                    Ani.Color(delegate{ return input.ForeColor; },delegate(Color c){ input.ForeColor=c; },to,200));
-            else input.ForeColor=to;
-            Fit(row); Notify();
+            input.ForeColor=box.Checked?NoteTheme.Muted(dark):NoteTheme.Ink(dark);
+            Notify();
         };
         input.TextChanged += delegate {
             if(rebuilding) return;
@@ -157,7 +207,7 @@ class Checklist : Panel {
         return row;
     }
     public void ReadDay(string path) {
-        Ani.Stop("listScroll"); rebuilding=true; content.SuspendLayout();
+        StopScroll(); rebuilding=true; content.SuspendLayout();
         try {
             while(Rows.Count>0) Rows[0].Dispose();
             if(File.Exists(path+".items")) {
@@ -170,7 +220,7 @@ class Checklist : Panel {
                 foreach(string line in File.ReadAllText(path).Replace("\r\n","\n").Replace('\r','\n').Split('\n')) AddRow(line,false,Rows.Count);
             }
             if(Rows.Count==0) AddRow("",false,0);
-        } finally { rebuilding=false; offset=destination=0; content.ResumeLayout(true); FitContent(); ApplyOffset(); }
+        } finally { rebuilding=false; wheelRemainder=0; offset=destination=0; content.ResumeLayout(true); FitContent(); ApplyOffset(); }
     }
     public void CountPlans(out int complete,out int total) {
         complete=0; total=0;
@@ -190,7 +240,7 @@ class Checklist : Panel {
         input.Select(input.TextLength,0);
         input.Select();
     }
-    protected override void Dispose(bool disposing) { base.Dispose(disposing); if(disposing){ Ani.Stop("listScroll"); normal.Dispose(); done.Dispose(); } }
+    protected override void Dispose(bool disposing) { base.Dispose(disposing); if(disposing){ StopScroll(); normal.Dispose(); done.Dispose(); } }
 }
 
 
