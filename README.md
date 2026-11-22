@@ -1,5 +1,7 @@
 # 每日计划 · Daily Plan Note
 
+**简体中文** · [English](README.en.md)
+
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote-Setup.exe"><img src="assets/windows-setup.png" width="185" alt="下载 Windows 安装包"></a>
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote.exe"><img src="assets/windows-portable.png" width="185" alt="下载 Windows 免安装 EXE"></a>
 <a href="https://github.com/Neo3328/daily-plan-note/releases/latest/download/DailyPlanNote-macOS.dmg"><img src="assets/macos-dmg.png" width="185" alt="下载 macOS DMG"></a>
